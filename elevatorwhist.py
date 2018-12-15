@@ -12,6 +12,8 @@ class ElevatorWhist:
         self.current_player = 0
         self.distribute()
 
+        self.bids = [None] * n_players
+
     def distribute(self):
         """ Creates players' hands """
         self.pack = np.array([[value, color] for value in range(1, 14) for color in range(4)])
@@ -22,3 +24,6 @@ class ElevatorWhist:
         for i in range(self.n_players):
             hands.append(self.pack[i * cards_per_hand:(i + 1) * cards_per_hand])
         self.hands = np.array(hands)  # Maybe numpy array useless here...
+
+    def bid(self, bid):
+        self.bids[self.current_player] = bid
