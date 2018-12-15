@@ -11,6 +11,8 @@ class ElevatorWhist:
 
         self.points = [0] * n_players
 
+        self.log = [("gameinit", n_players)]
+
         print("Game created. Ready for new round.")
 
     def new_round(self, cards_per_hand):
@@ -30,6 +32,7 @@ class ElevatorWhist:
         self.tricks = [0] * self.n_players
         self.pile = []
         self.current_player = 0
+        self.log.append(("newround", cards_per_hand))
 
     def get_hand(self):
         """ Returns the hand of the current player """
@@ -42,6 +45,7 @@ class ElevatorWhist:
         if self.bids[self.current_player] is not None:
             return
         self.bids[self.current_player] = bid
+        self.log.append(("bid", self.current_player, bid))
         self.next_player()
 
     def next_player(self):
@@ -49,6 +53,7 @@ class ElevatorWhist:
 
     def play_card(self, card_id):
         self.pile.append(self.hands[self.current_player].pop(card_id))
+        self.log.append(("cardplayed", self.current_player, self.pile[-1]))
         self.next_player()
 
         # If round completed
@@ -56,6 +61,7 @@ class ElevatorWhist:
             best_card = max(enumerate(self.pile),
                             key=lambda card: (card[1][1] == self.suit_led, (card[1][0] - 2) % 13))[0]
             taker = (best_card + self.current_player) % self.n_players
+            self.log.append(("taker", taker))
             self.tricks[taker] += 1
             self.pile = []
 
@@ -68,3 +74,9 @@ class ElevatorWhist:
                 self.points[player] += 2
             else:
                 self.points[player] -= abs(self.bids[player] - self.tricks[player])
+        self.log.append(("endround", self.points.copy()))
+
+    def get_log(self):
+        last_log = self.log
+        self.log = []
+        return last_log
